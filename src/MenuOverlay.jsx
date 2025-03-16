@@ -94,7 +94,12 @@ const MenuOverlay = () => {
             borderRadius: '4px',
             zIndex: 1000,
             fontFamily: '"Courier New", monospace',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(150, 150, 150, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(150, 150, 150, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 0, 0, 0.3)',
+            // Disable text selection for all clients
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none'
         }}>
             {/* Menu header */}
             <div style={{
@@ -169,7 +174,7 @@ const MenuOverlay = () => {
                         opacity: 0.1,
                         zIndex: 2
                     }}></div>
-                    System ready. Type 'HELP' for commands.
+                    System ready. Navigate: ↑ ↓ | Select: Enter
                 </div>
             </div>
         </div>

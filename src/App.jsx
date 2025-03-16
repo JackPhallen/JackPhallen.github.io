@@ -638,7 +638,12 @@ const FloatingCharacters = () => {
                 bottom: 0,
                 '@supports (height: -webkit-fill-available)': {
                     height: '-webkit-fill-available'
-                }
+                },
+                // Disable text selection for all clients
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                MozUserSelect: 'none',
+                msUserSelect: 'none'
             }}
         >
             <canvas ref={canvasRef} className="w-full h-full" />

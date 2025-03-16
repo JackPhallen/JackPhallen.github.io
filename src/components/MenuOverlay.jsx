@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const MenuOverlay = () => {
     const menuItems = [
-        { label: "PROJECTS", href: "#" },
-        { label: "RESUME", href: "#" },
-        { label: "ABOUT", href: "#" },
-        { label: "CONTACT", href: "#" }
+        { label: "PROJECTS", path: "/projects" },
+        { label: "RESUME", path: "/resume" },
+        { label: "ABOUT", path: "/about" },
+        { label: "CONTACT", path: "/contact" }
     ];
+
+    const navigate = useNavigate();
 
     // State of menu selection and hover
     const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -38,7 +41,7 @@ const MenuOverlay = () => {
                     // Navigate to selected
                     if (selectedIndex !== null) {
                         e.preventDefault();
-                        document.getElementById(`menu-item-${selectedIndex}`).click();
+                        navigate(menuItems[selectedIndex].path);
                     }
                     break;
                 case 'Escape':
@@ -53,12 +56,13 @@ const MenuOverlay = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [menuItems.length]);
+    }, [menuItems.length, navigate, selectedIndex]);
 
     // Set hovered index when selected changes
     useEffect(() => {
         setHoveredIndex(selectedIndex);
     }, [selectedIndex]);
+
     // Clear the selected index when mouse interaction begins
     const handleMouseEnter = (index) => {
         setSelectedIndex(null);
@@ -130,7 +134,7 @@ const MenuOverlay = () => {
                         }}
                         onMouseEnter={() => handleMouseEnter(index)}
                         onMouseLeave={() => hoveredIndex === index && selectedIndex === null && setHoveredIndex(null)}
-                        onClick={() => console.log(`Clicked on ${item.label}`)}
+                        onClick={() => navigate(item.path)}
                     >
                         {`> ${item.label}`}
                     </div>

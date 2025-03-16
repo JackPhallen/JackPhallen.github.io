@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 
 const MenuOverlay = () => {
-    // Menu items
     const menuItems = [
-        { label: "PROGRAMS", href: "#" },
-        { label: "PORTFOLIO", href: "#" },
+        { label: "PROJECTS", href: "#" },
+        { label: "RESUME", href: "#" },
         { label: "ABOUT", href: "#" },
         { label: "CONTACT", href: "#" }
     ];
 
-    // Track hover state for each item
+    // State of menu selection and hover
     const [hoveredIndex, setHoveredIndex] = useState(null);
-    // Track selected item for keyboard navigation
     const [selectedIndex, setSelectedIndex] = useState(null);
 
-    // Handle keyboard navigation
+    // Keyboard navigation logic
     useEffect(() => {
         const handleKeyDown = (e) => {
             switch (e.key) {
@@ -23,57 +21,44 @@ const MenuOverlay = () => {
                     setSelectedIndex(prevIndex => {
                         // If no item is selected, select the first one
                         if (prevIndex === null) return 0;
-                        // Otherwise, move to the next item or wrap around to the first
+                        // Move index down or wrap to start
                         return (prevIndex + 1) % menuItems.length;
                     });
                     break;
-
                 case 'ArrowUp':
                     e.preventDefault();
                     setSelectedIndex(prevIndex => {
-                        // If no item is selected, select the last one
+                        // If no item is selected, select last
                         if (prevIndex === null) return menuItems.length - 1;
-                        // Otherwise, move to the previous item or wrap around to the last
+                        // Move index up or wrap to end
                         return (prevIndex - 1 + menuItems.length) % menuItems.length;
                     });
                     break;
-
                 case 'Enter':
-                    // If an item is selected, navigate to its href
+                    // Navigate to selected
                     if (selectedIndex !== null) {
                         e.preventDefault();
-                        // For now, just log that the item was clicked
-                        console.log(`Clicked on ${menuItems[selectedIndex].label}`);
-
-                        // Eventually trigger actual navigation
-                        // window.location.href = menuItems[selectedIndex].href;
-                        // OR
-                        // document.getElementById(`menu-item-${selectedIndex}`).click();
+                        document.getElementById(`menu-item-${selectedIndex}`).click();
                     }
                     break;
-
                 case 'Escape':
-                    // Clear selection when Escape is pressed
+                    // Clear selection
                     setSelectedIndex(null);
                     break;
-
                 default:
                     break;
             }
         };
-        // Add event listener
         window.addEventListener('keydown', handleKeyDown);
-        // Remove event listener on cleanup
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [menuItems.length]);
 
-    // Update the hovered index when selected index changes
+    // Set hovered index when selected changes
     useEffect(() => {
         setHoveredIndex(selectedIndex);
     }, [selectedIndex]);
-
     // Clear the selected index when mouse interaction begins
     const handleMouseEnter = (index) => {
         setSelectedIndex(null);
@@ -154,11 +139,11 @@ const MenuOverlay = () => {
                 {/* Footer */}
                 <div style={{
                     color: '#777',
-                    fontSize: '12px',
+                    fontSize: '15px',
                     textAlign: 'center',
-                    paddingTop: '12px',
+                    paddingTop: '10px',
                     borderTop: '1px dashed rgba(100, 100, 100, 0.3)',
-                    marginTop: '8px',
+                    marginTop: '6px',
                     position: 'relative',
                     textShadow: '0 1px 1px rgba(0,0,0,0.5)'
                 }}>
@@ -174,7 +159,7 @@ const MenuOverlay = () => {
                         opacity: 0.1,
                         zIndex: 2
                     }}></div>
-                    System ready. Navigate: ↑ ↓ | Select: Enter
+                    Navigate: [↑][↓] | Select: [ENTER]
                 </div>
             </div>
         </div>

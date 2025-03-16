@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const MenuOverlay = () => {
     // Menu items
@@ -11,6 +11,74 @@ const MenuOverlay = () => {
 
     // Track hover state for each item
     const [hoveredIndex, setHoveredIndex] = useState(null);
+    // Track selected item for keyboard navigation
+    const [selectedIndex, setSelectedIndex] = useState(null);
+
+    // Handle keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    setSelectedIndex(prevIndex => {
+                        // If no item is selected, select the first one
+                        if (prevIndex === null) return 0;
+                        // Otherwise, move to the next item or wrap around to the first
+                        return (prevIndex + 1) % menuItems.length;
+                    });
+                    break;
+
+                case 'ArrowUp':
+                    e.preventDefault();
+                    setSelectedIndex(prevIndex => {
+                        // If no item is selected, select the last one
+                        if (prevIndex === null) return menuItems.length - 1;
+                        // Otherwise, move to the previous item or wrap around to the last
+                        return (prevIndex - 1 + menuItems.length) % menuItems.length;
+                    });
+                    break;
+
+                case 'Enter':
+                    // If an item is selected, navigate to its href
+                    if (selectedIndex !== null) {
+                        e.preventDefault();
+                        // For now, just log that the item was clicked
+                        console.log(`Clicked on ${menuItems[selectedIndex].label}`);
+
+                        // Eventually trigger actual navigation
+                        // window.location.href = menuItems[selectedIndex].href;
+                        // OR
+                        // document.getElementById(`menu-item-${selectedIndex}`).click();
+                    }
+                    break;
+
+                case 'Escape':
+                    // Clear selection when Escape is pressed
+                    setSelectedIndex(null);
+                    break;
+
+                default:
+                    break;
+            }
+        };
+        // Add event listener
+        window.addEventListener('keydown', handleKeyDown);
+        // Remove event listener on cleanup
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [menuItems.length]);
+
+    // Update the hovered index when selected index changes
+    useEffect(() => {
+        setHoveredIndex(selectedIndex);
+    }, [selectedIndex]);
+
+    // Clear the selected index when mouse interaction begins
+    const handleMouseEnter = (index) => {
+        setSelectedIndex(null);
+        setHoveredIndex(index);
+    };
 
     return (
         <div style={{
@@ -51,6 +119,7 @@ const MenuOverlay = () => {
             }}>
                 {menuItems.map((item, index) => (
                     <div
+                        id={`menu-item-${index}`}
                         key={index}
                         style={{
                             marginBottom: '12px',
@@ -65,10 +134,13 @@ const MenuOverlay = () => {
                             boxShadow: hoveredIndex === index
                                 ? '0 2px 8px rgba(0, 255, 170, 0.15), inset 0 0 10px rgba(0, 255, 170, 0.05)'
                                 : '0 1px 3px rgba(0, 0, 0, 0.2)',
-                            transform: hoveredIndex === index ? 'translateX(2px)' : 'none'
+                            transform: hoveredIndex === index ? 'translateX(2px)' : 'none',
+                            // Add outline for keyboard focus
+                            outline: selectedIndex === index ? '2px solid #0fa' : 'none',
                         }}
-                        onMouseEnter={() => setHoveredIndex(index)}
-                        onMouseLeave={() => setHoveredIndex(null)}
+                        onMouseEnter={() => handleMouseEnter(index)}
+                        onMouseLeave={() => hoveredIndex === index && selectedIndex === null && setHoveredIndex(null)}
+                        onClick={() => console.log(`Clicked on ${item.label}`)}
                     >
                         {`> ${item.label}`}
                     </div>

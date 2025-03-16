@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import MenuOverlay from './MenuOverlay';
 
 
 const FloatingCharacters = () => {
@@ -646,7 +647,13 @@ const FloatingCharacters = () => {
 };
 
 const App = () => {
-    return (<FloatingCharacters/>);
-}
+    return (
+        <>
+            <FloatingCharacters />
+            <MenuOverlay />
+        </>
+    );
+};
+
 
 export default App;

@@ -139,7 +139,7 @@ const MenuOverlay = () => {
                 {/* Footer */}
                 <div style={{
                     color: '#777',
-                    fontSize: '15px',
+                    fontSize: '16px',
                     textAlign: 'center',
                     paddingTop: '10px',
                     borderTop: '1px dashed rgba(100, 100, 100, 0.3)',
@@ -159,7 +159,7 @@ const MenuOverlay = () => {
                         opacity: 0.1,
                         zIndex: 2
                     }}></div>
-                    Navigate: [↑][↓] | Select: [ENTER]
+                    Navigate: [▲][▼] | Select: [⮐]
                 </div>
             </div>
         </div>

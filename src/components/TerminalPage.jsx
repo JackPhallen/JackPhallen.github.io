@@ -11,7 +11,6 @@ const CURSOR = "jackphallen:~ $ "
 const TerminalPage = ({ title, commandText, content }) => {
     const [displayedCommand, setDisplayedCommand] = useState('');
     const [displayedLines, setDisplayedLines] = useState([]);
-    const [showPrompt, setShowPrompt] = useState(true);
     const [commandComplete, setCommandComplete] = useState(false);
     const [currentTime, setCurrentTime] = useState('');
     const terminalRef = useRef(null);
@@ -67,7 +66,6 @@ const TerminalPage = ({ title, commandText, content }) => {
                 index++;
             } else {
                 clearInterval(timer);
-                setShowPrompt(true); // Keep prompt visible
                 setCommandComplete(true);
             }
         }, COMMAND_TYPING_SPEED); // Slower command typing speed

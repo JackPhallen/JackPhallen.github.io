@@ -25,6 +25,7 @@ const ContactPage = () => {
 
     return (
         <TerminalPage
+            title="Contact"
             commandText="cat assets/Contact.txt"
             content={contactContent}
         />

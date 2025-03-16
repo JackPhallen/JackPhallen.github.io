@@ -26,6 +26,7 @@ const ResumePage = () => {
 
     return (
         <TerminalPage
+            title="Resume"
             commandText="cat assets/Resume.txt"
             content={resumeContent}
         />

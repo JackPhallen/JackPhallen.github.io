@@ -25,6 +25,7 @@ const AboutPage = () => {
 
     return (
         <TerminalPage
+            title="About"
             commandText="cat assets/About.txt"
             content={aboutContent}
         />

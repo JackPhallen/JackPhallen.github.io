@@ -2,25 +2,51 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Typing speed constants (in milliseconds)
-const COMMAND_TYPING_SPEED = 100; // Slower typing for the command
-const CONTENT_TYPING_SPEED = 10;  // Faster typing for content
-const LINE_BREAK_PAUSE = 30;      // Pause between lines
+const COMMAND_TYPING_SPEED = 100; // Slower typing for the command (100 before)
+const CONTENT_TYPING_SPEED = 2;  // Faster typing for content (10 before)
+const LINE_BREAK_PAUSE = 5;      // Pause between lines (30 before)
 
 const CURSOR = "jackphallen:~ $ "
 
-const TerminalPage = ({ commandText, content }) => {
+const TerminalPage = ({ title, commandText, content }) => {
     const [displayedCommand, setDisplayedCommand] = useState('');
     const [displayedLines, setDisplayedLines] = useState([]);
     const [showPrompt, setShowPrompt] = useState(true);
     const [commandComplete, setCommandComplete] = useState(false);
+    const [currentTime, setCurrentTime] = useState('');
     const terminalRef = useRef(null);
     const navigate = useNavigate();
 
-    // Handle ESC key to return to home
+    // Update UTC time every second
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            const utcTimeString = now.toISOString().substr(0, 19).replace('T', ' ');
+            setCurrentTime(utcTimeString + ' UTC');
+        };
+
+        // Update immediately and then every second
+        updateTime();
+        const timer = setInterval(updateTime, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
+
+    // Handle ESC key to return to home and arrow keys for scrolling
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
                 navigate('/');
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (terminalRef.current) {
+                    terminalRef.current.scrollTop += 30; // Adjust line height as needed
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (terminalRef.current) {
+                    terminalRef.current.scrollTop -= 30;
+                }
             }
         };
 
@@ -142,42 +168,61 @@ const TerminalPage = ({ commandText, content }) => {
                     fontSize: '14px',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'space-between',
                     zIndex: 100
                 }}
             >
-                <div
-                    className="terminal-back-button"
-                    onClick={() => navigate('/')}
-                    style={{
-                        cursor: 'pointer',
-                        marginRight: '15px',
-                        padding: '2px 8px',
-                        backgroundColor: 'rgba(50, 50, 50, 0.8)',
-                        border: '1px solid #444',
-                        borderRadius: '3px',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                        transition: 'all 0.1s ease',
-                        display: 'inline-block'
-                    }}
-                    onMouseDown={(e) => e.currentTarget.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.4)'}
-                    onMouseUp={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
-                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
-                >
-                    ← Back
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div
+                        className="terminal-back-button"
+                        onClick={() => navigate('/')}
+                        style={{
+                            cursor: 'pointer',
+                            marginRight: '15px',
+                            padding: '2px 8px',
+                            backgroundColor: 'rgba(50, 50, 50, 0.8)',
+                            border: '1px solid #444',
+                            borderRadius: '3px',
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                            transition: 'all 0.1s ease',
+                            display: 'inline-block'
+                        }}
+                        onMouseDown={(e) => e.currentTarget.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.4)'}
+                        onMouseUp={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
+                        onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
+                    >
+                        ← Back
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '13px', color: '#aaffaa' }}>
+                        [ <span style={{ color: '#ffff99' }}>ESC</span>:menu ] [ <span style={{ color: '#ffff99' }}>▲/▼</span>:scroll ] |&nbsp;
+                        <span style={{ color: '#66aaff', marginLeft: '4px' }}>{title}</span>&nbsp;|&nbsp;
+                        <span>Line {displayedLines.length}/~</span>
+                    </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', fontSize: '13px', color: '#aaffaa' }}>
-                    [ <span style={{ color: '#ffff99' }}>ESC</span>:menu ] [ <span style={{ color: '#ffff99' }}>▲/▼</span>:scroll ] [ <span style={{ color: '#ffff99' }}>F1</span>:help ] |&nbsp;
-                    <span style={{ color: '#66aaff', marginLeft: '4px' }}>{commandText.split('/').pop()}</span>&nbsp;|&nbsp;
-                    <span>Line {displayedLines.length}/~</span>
+                {/* UTC Time display */}
+                <div style={{
+                    color: '#aaffaa',
+                    fontSize: '13px',
+                    marginRight: '10px',
+                    padding: '2px 6px',
+                    backgroundColor: 'rgba(20, 20, 20, 0.7)',
+                    border: '1px solid #333',
+                    borderRadius: '2px'
+                }}>
+                    {currentTime}
                 </div>
             </div>
 
-            <div className="terminal-content" ref={terminalRef}>
+            <div className="terminal-content" ref={terminalRef} style={{
+                height: 'calc(100vh - 40px)',
+                overflowY: 'auto'
+            }}>
                 <div className="terminal-command-line">
-          <span className="terminal-prompt" style={{ color: '#33ff33' }}>
-            {CURSOR}
-          </span>
+                    <span className="terminal-prompt" style={{ color: '#33ff33' }}>
+                        {CURSOR}
+                    </span>
                     <span className="terminal-command">{displayedCommand}</span>
                     {!commandComplete && (
                         <span className="terminal-cursor" style={{
@@ -211,11 +256,11 @@ const TerminalPage = ({ commandText, content }) => {
             </div>
 
             <style jsx>{`
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-      `}</style>
+                @keyframes blink {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0; }
+                }
+            `}</style>
         </div>
     );
 };

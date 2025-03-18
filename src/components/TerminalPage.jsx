@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Typing speed constants (in milliseconds)
-const COMMAND_TYPING_SPEED = 100; // Slower typing for the command (100 before)
-const CONTENT_TYPING_SPEED = 2;  // Faster typing for content (10 before)
-const LINE_BREAK_PAUSE = 5;      // Pause between lines (30 before)
+// Typing speed constants
+const COMMAND_FRAME_DELAY = 2;    // Frames to wait between each command character (higher = slower)
+const CONTENT_FRAME_DELAY = 1;    // Frames to wait between words (higher = slower)
+const CONTENT_WORDS_PER_FRAME = 5; // Number of words to display per frame
+const LINE_BREAK_PAUSE_FRAMES = 0; // Pause frames between lines
 
 const CURSOR = "jackphallen:~ $ "
 
@@ -15,6 +16,16 @@ const TerminalPage = ({ title, commandText, content }) => {
     const [currentTime, setCurrentTime] = useState('');
     const terminalRef = useRef(null);
     const navigate = useNavigate();
+
+    // Animation state references
+    const animationRef = useRef(null);
+    const contentStateRef = useRef({
+        lineIndex: 0,
+        wordIndex: 0,
+        frameCount: 0,
+        lineComplete: false,
+        processingPause: false
+    });
 
     // Update UTC time every second
     useEffect(() => {
@@ -55,77 +66,154 @@ const TerminalPage = ({ title, commandText, content }) => {
         };
     }, [navigate]);
 
-    // Type out the command
+    // Type out the command using requestAnimationFrame
     useEffect(() => {
         if (!commandText) return;
 
-        let index = 0;
-        const timer = setInterval(() => {
-            if (index <= commandText.length) {
-                setDisplayedCommand(commandText.substring(0, index));
-                index++;
-            } else {
-                clearInterval(timer);
-                setCommandComplete(true);
+        // Command animation state
+        const commandStateRef = { index: 0, frameCount: 0 };
+        let commandAnimationRef = null;
+
+        const animateCommandTyping = () => {
+            commandStateRef.frameCount++;
+
+            // Only process every COMMAND_FRAME_DELAY frames
+            if (commandStateRef.frameCount % COMMAND_FRAME_DELAY !== 0) {
+                commandAnimationRef = requestAnimationFrame(animateCommandTyping);
+                return;
             }
-        }, COMMAND_TYPING_SPEED); // Slower command typing speed
 
-        return () => clearInterval(timer);
-    }, [commandText]);
-
-    // Display content after command is typed
-    useEffect(() => {
-        if (!commandComplete || !content || content.length === 0) return;
-
-        let lineIndex = 0;
-        let charIndex = 0;
-        let timerRef = null;
-
-        const typeCharacter = () => {
-            if (lineIndex < content.length) {
-                const currentLine = content[lineIndex];
-
-                if (charIndex <= currentLine.text.length) {
-                    setDisplayedLines(prevLines => {
-                        const newLines = [...prevLines];
-                        // If this is a new line, add it
-                        if (newLines.length <= lineIndex) {
-                            newLines.push({
-                                text: currentLine.text.substring(0, charIndex),
-                                style: currentLine.style
-                            });
-                        } else {
-                            // Otherwise update existing line
-                            newLines[lineIndex] = {
-                                text: currentLine.text.substring(0, charIndex),
-                                style: currentLine.style
-                            };
-                        }
-                        return newLines;
-                    });
-
-                    charIndex++;
-                } else {
-                    // Move to next line
-                    lineIndex++;
-                    charIndex = 0;
-
-                    // Add a small pause between lines
-                    clearInterval(timerRef);
-                    setTimeout(() => {
-                        timerRef = setInterval(typeCharacter, CONTENT_TYPING_SPEED); // Content typing speed
-                    }, LINE_BREAK_PAUSE); // Pause between lines
-                    return;
-                }
+            if (commandStateRef.index <= commandText.length) {
+                setDisplayedCommand(commandText.substring(0, commandStateRef.index));
+                commandStateRef.index++;
+                commandAnimationRef = requestAnimationFrame(animateCommandTyping);
             } else {
-                clearInterval(timerRef);
+                setCommandComplete(true);
             }
         };
 
-        timerRef = setInterval(typeCharacter, CONTENT_TYPING_SPEED); // Content typing speed
+        // Start command animation
+        commandAnimationRef = requestAnimationFrame(animateCommandTyping);
 
+        // Clean up
         return () => {
-            if (timerRef) clearInterval(timerRef);
+            if (commandAnimationRef) {
+                cancelAnimationFrame(commandAnimationRef);
+            }
+        };
+    }, [commandText]);
+
+    // Display content after command is typed using requestAnimationFrame
+    useEffect(() => {
+        if (!commandComplete || !content || content.length === 0) return;
+
+        // Reset content state
+        contentStateRef.current = {
+            lineIndex: 0,
+            wordIndex: 0,
+            frameCount: 0,
+            currentLineText: '',
+            lineComplete: false,
+            processingPause: false
+        };
+
+        // Animation function using requestAnimationFrame
+        const animateContentDisplay = () => {
+            const state = contentStateRef.current;
+            state.frameCount++;
+
+            // Only process every CONTENT_FRAME_DELAY frames for speed control
+            if (state.frameCount % CONTENT_FRAME_DELAY !== 0) {
+                animationRef.current = requestAnimationFrame(animateContentDisplay);
+                return;
+            }
+
+            // If we're at the end of all content
+            if (state.lineIndex >= content.length) {
+                cancelAnimationFrame(animationRef.current);
+                return;
+            }
+
+            // If we're in a line break pause
+            if (state.processingPause) {
+                state.pauseFrames--;
+                if (state.pauseFrames <= 0) {
+                    state.processingPause = false;
+                    state.lineIndex++;
+                    state.wordIndex = 0;
+                    state.currentLineText = '';
+                    state.lineComplete = false;
+                }
+                animationRef.current = requestAnimationFrame(animateContentDisplay);
+                return;
+            }
+
+            // Get current line
+            const currentLine = content[state.lineIndex];
+
+            // If this is a new line, initialize it in displayedLines
+            if (state.wordIndex === 0) {
+                setDisplayedLines(prevLines => {
+                    const newLines = [...prevLines];
+                    newLines[state.lineIndex] = {
+                        text: '',
+                        style: currentLine.style
+                    };
+                    return newLines;
+                });
+            }
+
+            // Split the line into words
+            const words = currentLine.text.split(' ');
+
+            // Process multiple words per frame
+            for (let i = 0; i < CONTENT_WORDS_PER_FRAME; i++) {
+                if (state.wordIndex < words.length) {
+                    // Add the next word
+                    const word = words[state.wordIndex];
+                    state.currentLineText += word;
+
+                    // Add a space unless it's the last word
+                    if (state.wordIndex < words.length - 1) {
+                        state.currentLineText += ' ';
+                    }
+
+                    state.wordIndex++;
+                } else {
+                    // Line is complete
+                    state.lineComplete = true;
+                    break;
+                }
+            }
+
+            // Update displayed lines
+            setDisplayedLines(prevLines => {
+                const newLines = [...prevLines];
+                newLines[state.lineIndex] = {
+                    text: state.currentLineText,
+                    style: currentLine.style
+                };
+                return newLines;
+            });
+
+            // Check if we need to move to the next line
+            if (state.lineComplete) {
+                state.processingPause = true;
+                state.pauseFrames = LINE_BREAK_PAUSE_FRAMES;
+            }
+
+            // Continue animation
+            animationRef.current = requestAnimationFrame(animateContentDisplay);
+        };
+
+        // Start animation
+        animationRef.current = requestAnimationFrame(animateContentDisplay);
+
+        // Clean up
+        return () => {
+            if (animationRef.current) {
+                cancelAnimationFrame(animationRef.current);
+            }
         };
     }, [commandComplete, content]);
 

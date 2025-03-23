@@ -219,6 +219,8 @@ const TerminalPage = ({ title, commandText, content }) => {
 
     // Get CSS class for a style
     const getStyleClass = (style) => {
+        if (!style) return 'terminal-text'; // Add default style if style is undefined
+
         switch (style) {
             case 'bold':
                 return 'terminal-bold';
@@ -326,27 +328,29 @@ const TerminalPage = ({ title, commandText, content }) => {
                     {displayedLines.map((line, index) => (
                         <div
                             key={index}
-                            className={getStyleClass(line.style)}
+                            className={getStyleClass(line?.style)}
                             style={{
                                 lineHeight: '1.4',
-                                ...(line.style === 'bold' ? {
+                                ...(line?.style === 'bold' ? {
                                     fontWeight: 'bold',
                                     color: '#5fff5f'
                                 } : {})
                             }}
                         >
-                            {line.text}
+                            {line?.text}
                         </div>
                     ))}
                 </div>
             </div>
 
-            <style jsx>{`
+            <style>
+                {`
                 @keyframes blink {
                     0%, 100% { opacity: 1; }
                     50% { opacity: 0; }
                 }
-            `}</style>
+                `}
+            </style>
         </div>
     );
 };

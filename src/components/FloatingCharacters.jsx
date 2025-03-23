@@ -4,6 +4,12 @@ const FloatingCharacters = () => {
     // Fix for Safari mobile viewport height issues
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
+    // Store references for cleanup
+    const animFrameIdRef = useRef(null);
+    const charactersRef = useRef([]);
+    const eventQueueRef = useRef(null);
+    const activeEventListenersRef = useRef([]);
+
     useEffect(() => {
         const fixHeight = () => {
             const vh = window.innerHeight;
@@ -19,21 +25,21 @@ const FloatingCharacters = () => {
 
         // Fix height on mount, resize, and orientation change
         fixHeight();
-        window.addEventListener('resize', fixHeight);
-        window.addEventListener('orientationchange', fixHeight);
 
-        return () => {
-            window.removeEventListener('resize', fixHeight);
-            window.removeEventListener('orientationchange', fixHeight);
+        // Track event listeners for proper cleanup
+        const addTrackedEventListener = (element, eventType, handler) => {
+            element.addEventListener(eventType, handler);
+            activeEventListenersRef.current.push({ element, eventType, handler });
         };
-    }, []);
 
-    useEffect(() => {
+        addTrackedEventListener(window, 'resize', fixHeight);
+        addTrackedEventListener(window, 'orientationchange', fixHeight);
+
         // ================================================================
         // CORE MOVEMENT CONSTANTS
         // ================================================================
         // Primary movement controls - these affect multiple systems
-        const MOVEMENT_SPEED = 0.2;      // Base floating speed multiplier for all character movement
+        const MOVEMENT_SPEED = 0.14;      // Base floating speed multiplier for all character movement
         const MOVEMENT_RANGE = 15;       // Base range distance for floating movement patterns
         const AMPLITUDE_FACTOR = 0.8;    // Movement amplitude factor - higher values = wider oscillations
         const SINE_FREQUENCY_RATIO = 0.7; // Ratio between horizontal and vertical oscillation frequencies
@@ -80,8 +86,8 @@ const FloatingCharacters = () => {
         const MODE_SWITCH_COUNT = 3;                // Number of characters to switch modes each interval
 
         // Drifting character physics
-        const DRIFTING_SPEED_MIN = 0.5;
-        const DRIFTING_SPEED_MAX = 2.0;
+        const DRIFTING_SPEED_MIN = 0.35;
+        const DRIFTING_SPEED_MAX = 1.4;
 
         // Off-screen handling
         const ENABLE_BOUNDARY_UPDATE = true;        // Enable/disable periodic boundary updates
@@ -205,11 +211,13 @@ const FloatingCharacters = () => {
             mouseX = e.clientX;
             mouseY = e.clientY;
         };
-        canvas.addEventListener('mousemove', handleMouseMove);
+        addTrackedEventListener(canvas, 'mousemove', handleMouseMove);
 
         // == Create characters ==
         // Get counts
         const characters = [];
+        charactersRef.current = characters;
+
         const characterCount = Math.floor(
             (canvas.width / CHARACTER_SPACING) *
             (canvas.height / CHARACTER_SPACING) *
@@ -341,6 +349,7 @@ const FloatingCharacters = () => {
 
         // Create event queue instance for reoccuring tasks: Randomly set isDrifting = !isDrifting and also change hover boundaries
         const eventQueue = new EventQueue(TIMER_INTERVAL);
+        eventQueueRef.current = eventQueue;
 
         // Function to convert from drifting to hovering mode
         const convertToHovering = (character) => {
@@ -419,7 +428,9 @@ const FloatingCharacters = () => {
             }
         });
 
-        // Animation loop
+        // Animation loop with tracked frame IDs
+        const animFrameIds = [];
+
         const animate = () => {
             ctx.fillStyle = BACKGROUND_COLOR;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -567,10 +578,16 @@ const FloatingCharacters = () => {
                 drawCharacter(ctx, char);
             });
 
-            requestAnimationFrame(animate);
+            // Store the animation frame ID for proper cancellation
+            const frameId = requestAnimationFrame(animate);
+            animFrameIds.push(frameId);
+            animFrameIdRef.current = frameId;
         };
 
-        animate();
+        // Start the animation
+        const initialFrameId = requestAnimationFrame(animate);
+        animFrameIds.push(initialFrameId);
+        animFrameIdRef.current = initialFrameId;
 
         // Click event listener to create ripple effect, if enabled
         const handleClick = (e) => {
@@ -598,26 +615,70 @@ const FloatingCharacters = () => {
             });
         };
 
-        canvas.addEventListener('click', handleClick);
+        addTrackedEventListener(canvas, 'click', handleClick);
 
         // Handle window resize with debounce
         let resizeTimer;
         const handleResize = () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+                if (canvasRef.current) {
+                    canvasRef.current.width = window.innerWidth;
+                    canvasRef.current.height = window.innerHeight;
+                }
             }, RESIZE_DEBOUNCE_TIME);
         };
 
-        window.addEventListener('resize', handleResize);
+        addTrackedEventListener(window, 'resize', handleResize);
 
-        // Cleanup event listeners and intervals on unmount
+        // Enhanced cleanup function
         return () => {
-            window.removeEventListener('resize', handleResize);
-            canvas.removeEventListener('click', handleClick);
-            canvas.removeEventListener('mousemove', handleMouseMove);
-            eventQueue.stop(); // Stop the event queue
+            console.log('FloatingCharacters component unmounting...');
+
+            // Clear the resize debounce timer
+            if (resizeTimer) {
+                clearTimeout(resizeTimer);
+            }
+
+            // Stop all animation frames
+            if (animFrameIds.length > 0) {
+                console.log(`Cancelling ${animFrameIds.length} animation frames`);
+                animFrameIds.forEach(id => cancelAnimationFrame(id));
+            }
+
+            // Cancel any current animation frame
+            if (animFrameIdRef.current) {
+                cancelAnimationFrame(animFrameIdRef.current);
+                animFrameIdRef.current = null;
+            }
+
+            // Stop the event queue
+            if (eventQueueRef.current) {
+                eventQueueRef.current.stop();
+                eventQueueRef.current = null;
+            }
+
+            // Remove all tracked event listeners
+            if (activeEventListenersRef.current.length > 0) {
+                console.log(`Removing ${activeEventListenersRef.current.length} event listeners`);
+                activeEventListenersRef.current.forEach(({ element, eventType, handler }) => {
+                    element.removeEventListener(eventType, handler);
+                });
+                activeEventListenersRef.current = [];
+            }
+
+            // Clear the canvas before unmounting
+            if (canvasRef.current) {
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            }
+
+            // Clear character array
+            if (charactersRef.current) {
+                charactersRef.current.length = 0;
+            }
+
+            console.log('FloatingCharacters component cleanup complete');
         };
     }, []);
 

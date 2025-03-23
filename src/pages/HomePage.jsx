@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FloatingCharacters from '../components/FloatingCharacters';
 import MenuOverlay from '../components/MenuOverlay';
 
@@ -21,6 +21,22 @@ const HomePage = () => {
         height: window.innerHeight
     });
 
+    // State to track if screen is too narrow for menu
+    const [isTooNarrow, setIsTooNarrow] = useState(false);
+
+    // Reference to menu width (default menu width is 340px based on MenuOverlay.jsx)
+    const MENU_WIDTH = 340; // Menu width from MenuOverlay.jsx
+    const MINIMUM_PADDING = 20; // Minimum padding on each side
+
+    // Check if screen is too narrow on initial load
+    useEffect(() => {
+        const checkWidth = () => {
+            setIsTooNarrow(window.innerWidth < (MENU_WIDTH + MINIMUM_PADDING * 2));
+        };
+
+        checkWidth();
+    }, []);
+
     // Add resize handler with debounce
     useEffect(() => {
         // Function to handle resize completion
@@ -41,6 +57,9 @@ const HomePage = () => {
 
                 // Force component reset by changing key
                 setFloatingCharKey(prevKey => prevKey + 1);
+
+                // Check if screen is too narrow for menu
+                setIsTooNarrow(newWidth < (MENU_WIDTH + MINIMUM_PADDING * 2));
             }
         };
 
@@ -64,11 +83,11 @@ const HomePage = () => {
             overflow: 'hidden',
             backgroundColor: '#000000'
         }}>
-            {/* Floating Characters background with key for reset */}
+            {/* Floating Characters background - shown on all devices */}
             <FloatingCharacters key={floatingCharKey} />
 
-            {/* Menu Overlay */}
-            <MenuOverlay />
+            {/* Menu Overlay - hidden when screen is too narrow */}
+            {!isTooNarrow && <MenuOverlay />}
         </div>
     );
 };

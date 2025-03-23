@@ -624,23 +624,7 @@ const FloatingCharacters = () => {
     return (
         <div
             ref={containerRef}
-            className="w-full overflow-hidden bg-black"
-            style={{
-                height: '100vh',
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                '@supports (height: -webkit-fill-available)': {
-                    height: '-webkit-fill-available'
-                },
-                // Disable text selection for all clients
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
-                MozUserSelect: 'none',
-                msUserSelect: 'none'
-            }}
+            className="w-full overflow-hidden bg-black fill-available-container"
         >
             <canvas ref={canvasRef} className="w-full h-full" />
         </div>

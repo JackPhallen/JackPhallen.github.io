@@ -15,6 +15,7 @@ const HomePage = () => {
     // Unique ID for FloatingCharacters component so that we can destroy and recreate on resize
     const [floatingCharKey, setFloatingCharKey] = useState(0);
 
+    // Track current screen dimensions
     const [screenDimensions, setScreenDimensions] = useState({
         width: window.innerWidth,
         height: window.innerHeight

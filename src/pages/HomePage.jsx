@@ -3,6 +3,10 @@ import FloatingCharacters from '../components/FloatingCharacters';
 import MenuOverlay from '../components/MenuOverlay';
 import TerminalIcon from '../components/TerminalIcon';
 
+// Reference to menu width (default menu width is 340px based on MenuOverlay.jsx)
+const MENU_WIDTH = 340;
+const MINIMUM_PADDING = 60; // Space for playing with characters
+
 // Simple debounce function
 const debounce = (func, delay) => {
     let timeoutId;
@@ -24,10 +28,6 @@ const HomePage = () => {
 
     // Need enough space to allow playing with characters
     const [isMenuVisible, setIsMenuVisible] = useState(true);
-
-    // Reference to menu width (default menu width is 340px based on MenuOverlay.jsx)
-    const MENU_WIDTH = 340;
-    const MINIMUM_PADDING = 20; // Space for playing with characters
 
     // Check if screen is narrow on initial load and set menu visibility accordingly
     useEffect(() => {

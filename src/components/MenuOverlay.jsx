@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 
-const MenuOverlay = () => {
+const MenuOverlay = ({ onClose }) => {
     const menuItems = [
         { label: "PROJECTS", path: "/projects" },
         { label: "RESUME", path: "/resume" },
@@ -45,8 +46,8 @@ const MenuOverlay = () => {
                     }
                     break;
                 case 'Escape':
-                    // Clear selection
-                    setSelectedIndex(null);
+                    // Close menu
+                    onClose();
                     break;
                 default:
                     break;
@@ -56,7 +57,7 @@ const MenuOverlay = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [menuItems.length, navigate, selectedIndex]);
+    }, [menuItems.length, navigate, selectedIndex, onClose]);
 
     // Set hovered index when selected changes
     useEffect(() => {
@@ -96,7 +97,8 @@ const MenuOverlay = () => {
                 padding: '10px',
                 textAlign: 'center',
                 borderBottom: '1px solid #555',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.3)'
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.3)',
+                position: 'relative'
             }}>
                 <h2 style={{
                     margin: 0,
@@ -105,6 +107,31 @@ const MenuOverlay = () => {
                     letterSpacing: '2px',
                     textShadow: '0 2px 2px rgba(0, 0, 0, 0.5)'
                 }}>MAIN MENU</h2>
+
+                {/* Close button - always shown */}
+                <div
+                    onClick={() => {
+                        console.log("Close button clicked in MenuOverlay");
+                        if (onClose) onClose();
+                    }}
+                    style={{
+                        position: 'absolute',
+                        right: '10px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        cursor: 'pointer',
+                        color: 'white',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        borderRadius: '3px',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1010
+                    }}
+                >
+                    <X size={16} />
+                </div>
             </div>
 
             {/* Menu items */}

@@ -7,6 +7,8 @@ const CONTENT_FRAME_DELAY = 1;    // Frames to wait between words (higher = slow
 const CONTENT_WORDS_PER_FRAME = 5; // Number of words to display per frame
 const LINE_BREAK_PAUSE_FRAMES = 0; // Pause frames between lines
 
+const MOBILE_THRESHOLD = 600;
+
 const CURSOR = "jackphallen:~ $ "
 
 const TerminalPage = ({ title, commandText, content }) => {
@@ -14,6 +16,7 @@ const TerminalPage = ({ title, commandText, content }) => {
     const [displayedLines, setDisplayedLines] = useState([]);
     const [commandComplete, setCommandComplete] = useState(false);
     const [currentTime, setCurrentTime] = useState('');
+    const [isMobileView, setIsMobileView] = useState(false);
     const terminalRef = useRef(null);
     const navigate = useNavigate();
 
@@ -26,6 +29,18 @@ const TerminalPage = ({ title, commandText, content }) => {
         lineComplete: false,
         processingPause: false
     });
+
+    // Check for mobile view on initial load and window resize
+    useEffect(() => {
+        const checkMobileView = () => {
+            setIsMobileView(window.innerWidth < MOBILE_THRESHOLD);
+        };
+        checkMobileView();
+        window.addEventListener('resize', checkMobileView);
+        return () => {
+            window.removeEventListener('resize', checkMobileView);
+        };
+    }, []);
 
     // Update UTC time every second
     useEffect(() => {
@@ -50,7 +65,7 @@ const TerminalPage = ({ title, commandText, content }) => {
             } else if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 if (terminalRef.current) {
-                    terminalRef.current.scrollTop += 30; // Adjust line height as needed
+                    terminalRef.current.scrollTop += 30;
                 }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
@@ -95,7 +110,6 @@ const TerminalPage = ({ title, commandText, content }) => {
         // Start command animation
         commandAnimationRef = requestAnimationFrame(animateCommandTyping);
 
-        // Clean up
         return () => {
             if (commandAnimationRef) {
                 cancelAnimationFrame(commandAnimationRef);
@@ -148,7 +162,6 @@ const TerminalPage = ({ title, commandText, content }) => {
                 return;
             }
 
-            // Get current line
             const currentLine = content[state.lineIndex];
 
             // If this is a new line, initialize it in displayedLines
@@ -180,7 +193,6 @@ const TerminalPage = ({ title, commandText, content }) => {
 
                     state.wordIndex++;
                 } else {
-                    // Line is complete
                     state.lineComplete = true;
                     break;
                 }
@@ -209,7 +221,6 @@ const TerminalPage = ({ title, commandText, content }) => {
         // Start animation
         animationRef.current = requestAnimationFrame(animateContentDisplay);
 
-        // Clean up
         return () => {
             if (animationRef.current) {
                 cancelAnimationFrame(animationRef.current);
@@ -220,7 +231,6 @@ const TerminalPage = ({ title, commandText, content }) => {
     // Get CSS class for a style
     const getStyleClass = (style) => {
         if (!style) return 'terminal-text'; // Add default style if style is undefined
-
         switch (style) {
             case 'bold':
                 return 'terminal-bold';
@@ -267,7 +277,7 @@ const TerminalPage = ({ title, commandText, content }) => {
                         style={{
                             cursor: 'pointer',
                             marginRight: '15px',
-                            padding: '2px 8px',
+                            padding: isMobileView ? '2px 6px' : '2px 8px',
                             backgroundColor: 'rgba(50, 50, 50, 0.8)',
                             border: '1px solid #444',
                             borderRadius: '3px',
@@ -279,28 +289,34 @@ const TerminalPage = ({ title, commandText, content }) => {
                         onMouseUp={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
                         onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
                     >
-                        ← Back
+                        {isMobileView ? '←' : '← Back'}
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', fontSize: '13px', color: '#aaffaa' }}>
-                        [ <span style={{ color: '#ffff99' }}>ESC</span>:menu ] [ <span style={{ color: '#ffff99' }}>▲/▼</span>:scroll ] |&nbsp;
-                        <span style={{ color: '#66aaff', marginLeft: '4px' }}>{title}</span>&nbsp;|&nbsp;
+                        {!isMobileView && (
+                            <>
+                                [ <span style={{ color: '#ffff99' }}>ESC</span>:menu ] [ <span style={{ color: '#ffff99' }}>▲/▼</span>:scroll ] |&nbsp;
+                            </>
+                        )}
+                        <span style={{ color: '#66aaff', marginLeft: isMobileView ? 0 : '4px' }}>{title}</span>&nbsp;|&nbsp;
                         <span>Line {displayedLines.length}/~</span>
                     </div>
                 </div>
 
-                {/* UTC Time display */}
-                <div style={{
-                    color: '#aaffaa',
-                    fontSize: '13px',
-                    marginRight: '10px',
-                    padding: '2px 6px',
-                    backgroundColor: 'rgba(20, 20, 20, 0.7)',
-                    border: '1px solid #333',
-                    borderRadius: '2px'
-                }}>
-                    {currentTime}
-                </div>
+                {/* UTC Time display - hidden on mobile */}
+                {!isMobileView && (
+                    <div style={{
+                        color: '#aaffaa',
+                        fontSize: '13px',
+                        marginRight: '10px',
+                        padding: '2px 6px',
+                        backgroundColor: 'rgba(20, 20, 20, 0.7)',
+                        border: '1px solid #333',
+                        borderRadius: '2px'
+                    }}>
+                        {currentTime}
+                    </div>
+                )}
             </div>
 
             <div className="terminal-content" ref={terminalRef} style={{

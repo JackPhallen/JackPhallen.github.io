@@ -51,16 +51,13 @@ const HomePage = () => {
             // Only reset if change is significant (>15%)
             if (widthChange > 0.15 || heightChange > 0.15) {
                 console.log('Significant resize detected, resetting FloatingCharacters');
-
-                // Update stored dimensions
                 setScreenDimensions({ width: newWidth, height: newHeight });
-
-                // Force component reset by changing key
+                // Force recreate FloatingCharacters
                 setFloatingCharKey(prevKey => prevKey + 1);
             }
         };
 
-        // Create debounced resize handler (waits 300ms after resize stops)
+        // 300ms debounce
         const debouncedResizeHandler = debounce(handleResizeComplete, 300);
         window.addEventListener('resize', debouncedResizeHandler);
         // Cleanup on component unmount
@@ -85,7 +82,7 @@ const HomePage = () => {
             {/* Floating Characters background - shown on all devices */}
             <FloatingCharacters key={floatingCharKey} />
 
-            {/* Hamburger menu button - only visible when menu is hidden */}
+            {/* Terminal menu button - only visible when menu is hidden */}
             {!isMenuVisible && <TerminalIcon onClick={toggleMenu} />}
 
             {/* Menu Overlay - shown when isMenuVisible is true */}

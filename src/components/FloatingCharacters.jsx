@@ -11,6 +11,9 @@ const FloatingCharacters = () => {
 
     // Manually handle canvas dimensions
     useEffect(() => {
+
+        const currentCanvas = canvasRef.current;
+
         const fixHeight = () => {
             const vh = window.innerHeight;
             if (containerRef.current) {
@@ -92,7 +95,6 @@ const FloatingCharacters = () => {
         const OFFSCREEN_RETURN_SPEED_MIN = 0.5;     // Minimum speed for returning to screen
         const OFFSCREEN_RETURN_SPEED_MAX = 1.5;     // Maximum speed for returning to screen
         const SCREEN_SAFE_ZONE_MIN = 0.3;           // Minimum safe zone (% of screen width/height)
-        const SCREEN_SAFE_ZONE_MAX = 0.7;           // Maximum safe zone (% of screen width/height)
 
         // ================================================================
         // CHARACTER APPEARANCE
@@ -534,7 +536,7 @@ const FloatingCharacters = () => {
                     // Check if character is completely off-screen
                     if (isCharacterOffScreen(char, canvas)) {
                         // Force character to have a target if it's off-screen
-                        if (!char.hasOwnProperty('targetBaseX')) {
+                        if (!Object.prototype.hasOwnProperty.call(char, 'targetBaseX')) {
                             // Calculate safe bounds for return
                             const bounds = calculateSafeBounds(canvas);
 
@@ -664,9 +666,9 @@ const FloatingCharacters = () => {
             }
 
             // Clear the canvas before unmounting
-            if (canvasRef.current) {
-                const ctx = canvasRef.current.getContext('2d');
-                ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            if (currentCanvas) {
+                const ctx = currentCanvas.getContext('2d');
+                ctx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
             }
 
             // Clear character array

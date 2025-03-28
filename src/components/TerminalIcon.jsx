@@ -23,16 +23,18 @@ const TerminalIcon = ({ onClick }) => {
                 size={24}
                 color="#0ff" // Cyan color
             />
-            <style jsx="true">{`
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.7);
-          }
-          100% {
-            box-shadow: 0 0 15px 4px rgba(0, 255, 255, 0.9);
-          }
-        }
-      `}</style>
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes pulse {
+                    0% {
+                        box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.7);
+                    }
+                    100% {
+                        box-shadow: 0 0 15px 4px rgba(0, 255, 255, 0.9);
+                    }
+                }
+                `
+            }} />
         </div>
     );
 };

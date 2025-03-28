@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 
-const MenuOverlay = ({ onClose }) => {
-    const menuItems = [
-        { label: "PROJECTS", path: "/projects" },
-        { label: "RESUME", path: "/resume" },
-        { label: "ABOUT", path: "/about" },
-        { label: "CONTACT", path: "/contact" }
-    ];
+const MENU_ITEMS = [
+    { label: "PROJECTS", path: "/projects" },
+    { label: "RESUME", path: "/resume" },
+    { label: "ABOUT", path: "/about" },
+    { label: "CONTACT", path: "/contact" }
+];
 
+const MenuOverlay = ({ onClose }) => {
     const navigate = useNavigate();
 
     // Hobered and selected menu item for styling purposes
@@ -26,23 +26,23 @@ const MenuOverlay = ({ onClose }) => {
                         // If no item is selected, select the first one
                         if (prevIndex === null) return 0;
                         // Move index down or wrap to start
-                        return (prevIndex + 1) % menuItems.length;
+                        return (prevIndex + 1) % MENU_ITEMS.length;
                     });
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
                     setSelectedIndex(prevIndex => {
                         // If no item is selected, select last
-                        if (prevIndex === null) return menuItems.length - 1;
+                        if (prevIndex === null) return MENU_ITEMS.length - 1;
                         // Move index up or wrap to end
-                        return (prevIndex - 1 + menuItems.length) % menuItems.length;
+                        return (prevIndex - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
                     });
                     break;
                 case 'Enter':
                     // Navigate to selected
                     if (selectedIndex !== null) {
                         e.preventDefault();
-                        navigate(menuItems[selectedIndex].path);
+                        navigate(MENU_ITEMS[selectedIndex].path);
                     }
                     break;
                 case 'Escape':
@@ -57,7 +57,7 @@ const MenuOverlay = ({ onClose }) => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [menuItems.length, navigate, selectedIndex, onClose]);
+    }, [navigate, selectedIndex, onClose]);
 
     // Set hovered index when selected changes
     useEffect(() => {
@@ -138,7 +138,7 @@ const MenuOverlay = ({ onClose }) => {
             <div style={{
                 padding: '15px'
             }}>
-                {menuItems.map((item, index) => (
+                {MENU_ITEMS.map((item, index) => (
                     <div
                         id={`menu-item-${index}`}
                         key={index}

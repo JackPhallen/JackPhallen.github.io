@@ -46,7 +46,7 @@ const TerminalPage = ({ title, commandText, content }) => {
     useEffect(() => {
         const updateTime = () => {
             const now = new Date();
-            const utcTimeString = now.toISOString().substr(0, 19).replace('T', ' ');
+            const utcTimeString = now.toISOString().slice(0, 19).replace('T', ' ');
             setCurrentTime(utcTimeString + ' UTC');
         };
 

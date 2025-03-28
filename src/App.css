@@ -1,5 +1,5 @@
 .fill-available-container {
-  height: 100vh;
+  height: 100vh;  /* Fallback if stretch or browser-specific tags don't work */
   position: fixed;
   top: 0;
   left: 0;
@@ -11,8 +11,23 @@
   -ms-user-select: none;
 }
 
+/* Safari (works better than stretch on mobile) */
 @supports (height: -webkit-fill-available) {
   .fill-available-container {
     height: -webkit-fill-available;
+  }
+}
+
+/* Firefox */
+@supports (height: -moz-available) {
+  .fill-available-container {
+    height: -moz-available;
+  }
+}
+
+/* Standard */
+@supports (height: stretch) {
+  .fill-available-container {
+    height: stretch;
   }
 }

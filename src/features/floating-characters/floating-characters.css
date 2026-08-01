@@ -1,0 +1,12 @@
+.floating-characters {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background-color: #000000;
+}
+
+.floating-characters__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}

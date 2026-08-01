@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './TerminalPage.css';
 
 // Typing speed constants
 const COMMAND_FRAME_DELAY = 2;    // Frames to wait between each command character (higher = slower)
@@ -241,132 +242,65 @@ const TerminalPage = ({ title, commandText, content }) => {
     };
 
     return (
-        <div className="terminal-container" style={{
-            backgroundColor: '#000000',
-            color: '#33ff33',
-            fontFamily: '"Courier New", monospace',
-            padding: '20px',
-            paddingTop: '40px', // Extra padding for the status bar
-            minHeight: '100vh',
-            whiteSpace: 'pre-wrap',
-            overflow: 'auto'
-        }}>
+        <div className="terminal-container">
             {/* Status bar at the top */}
-            <div
-                className="terminal-status-bar"
-                style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    backgroundColor: '#111111',
-                    borderBottom: '1px solid #333',
-                    color: '#33ff33',
-                    padding: '6px 10px',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    zIndex: 100
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div
+            <div className="terminal-status-bar">
+                <div className="terminal-status-bar__left">
+                    <button
+                        type="button"
                         className="terminal-back-button"
                         onClick={() => navigate('/')}
                         style={{
-                            cursor: 'pointer',
-                            marginRight: '15px',
-                            padding: isMobileView ? '2px 6px' : '2px 8px',
-                            backgroundColor: 'rgba(50, 50, 50, 0.8)',
-                            border: '1px solid #444',
-                            borderRadius: '3px',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                            transition: 'all 0.1s ease',
-                            display: 'inline-block'
+                            padding: isMobileView ? '2px 6px' : '2px 8px'
                         }}
                         onMouseDown={(e) => e.currentTarget.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.4)'}
                         onMouseUp={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
                         onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
                     >
                         {isMobileView ? '←' : '← Back'}
-                    </div>
+                    </button>
 
-                    <div style={{ display: 'flex', alignItems: 'center', fontSize: '13px', color: '#aaffaa' }}>
+                    <div className="terminal-status-bar__info">
                         {!isMobileView && (
                             <>
-                                [ <span style={{ color: '#ffff99' }}>ESC</span>:menu ] [ <span style={{ color: '#ffff99' }}>▲/▼</span>:scroll ] |&nbsp;
+                                [ <span className="terminal-status-bar__key">ESC</span>:menu ] [ <span className="terminal-status-bar__key">▲/▼</span>:scroll ] |&nbsp;
                             </>
                         )}
-                        <span style={{ color: '#66aaff', marginLeft: isMobileView ? 0 : '4px' }}>{title}</span>&nbsp;|&nbsp;
+                        <span className="terminal-status-bar__title" style={{ marginLeft: isMobileView ? 0 : '4px' }}>{title}</span>&nbsp;|&nbsp;
                         <span>Line {displayedLines.length}/~</span>
                     </div>
                 </div>
 
                 {/* UTC Time display - hidden on mobile */}
                 {!isMobileView && (
-                    <div style={{
-                        color: '#aaffaa',
-                        fontSize: '13px',
-                        marginRight: '10px',
-                        padding: '2px 6px',
-                        backgroundColor: 'rgba(20, 20, 20, 0.7)',
-                        border: '1px solid #333',
-                        borderRadius: '2px'
-                    }}>
+                    <div className="terminal-status-bar__time">
                         {currentTime}
                     </div>
                 )}
             </div>
 
-            <div className="terminal-content" ref={terminalRef} style={{
-                height: 'calc(100vh - 40px)',
-                overflowY: 'auto'
-            }}>
+            <div className="terminal-content" ref={terminalRef}>
                 <div className="terminal-command-line">
-                    <span className="terminal-prompt" style={{ color: '#33ff33' }}>
+                    <span className="terminal-prompt">
                         {CURSOR}
                     </span>
                     <span className="terminal-command">{displayedCommand}</span>
                     {!commandComplete && (
-                        <span className="terminal-cursor" style={{
-                            display: 'inline-block',
-                            width: '8px',
-                            height: '16px',
-                            backgroundColor: '#33ff33',
-                            marginLeft: '1px',
-                            animation: 'blink 1s step-end infinite'
-                        }}>&nbsp;</span>
+                        <span className="terminal-cursor">&nbsp;</span>
                     )}
                 </div>
 
-                <div className="terminal-output" style={{ marginTop: '10px' }}>
+                <div className="terminal-output">
                     {displayedLines.map((line, index) => (
                         <div
                             key={index}
                             className={getStyleClass(line?.style)}
-                            style={{
-                                lineHeight: '1.4',
-                                ...(line?.style === 'bold' ? {
-                                    fontWeight: 'bold',
-                                    color: '#5fff5f'
-                                } : {})
-                            }}
                         >
                             {line?.text}
                         </div>
                     ))}
                 </div>
             </div>
-
-            <style>
-                {`
-                @keyframes blink {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0; }
-                }
-                `}
-            </style>
         </div>
     );
 };

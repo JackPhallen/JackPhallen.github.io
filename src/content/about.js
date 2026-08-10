@@ -1,15 +1,14 @@
 export const ABOUT_CONTENT = [
-    { text: "NAME: Jack Phallen", style: "bold" },
-    { text: "TITLE: Senior Software Engineer", style: "default" },
+    { text: "My name is Jack. I studied computer science at The Ohio State University. I worked in value-based care at Epic Systems (no not the fortnite company). I now work in asset management.", style: "default" },
     { text: "", style: "default" }, // Empty line
-    { text: "EXPERIENCE:", style: "bold" },
-    { text: "  Asset Management - New York, New York", style: "bold" },
-    { text: "    • Senior Software Engineer (2025 - Present)", style: "default" },
-    { text: "", style: "default" }, // Empty line
-    { text: "  Arcadia - New York, New York", style: "bold" },
-    { text: "    • Lead Software Engineer (2024 - 2025)", style: "default" },
-    { text: "", style: "default" }, // Empty line
-    { text: "  Epic - Verona, Wisconsin", style: "bold" },
-    { text: "    • Software Engineer Manager (2022 - 2024)", style: "default" },
-    { text: "    • Software Engineer (2021 - 2022)", style: "default" },
+    { text: "I like:", style: "default" },
+    { text: "  • MUMPS programming language", style: "default" },
+    { text: "  • Reading the Financial Times (check out my letter that got published", style: "default" },
+    {
+        text: "    https://www.ft.com/content/ae665ce0-ae95-41f2-a0be-b130172b3915)",
+        style: "default",
+        link: "https://www.ft.com/content/ae665ce0-ae95-41f2-a0be-b130172b3915",
+    },
+    { text: "  • Twin Peaks", style: "default" },
+    { text: "  • Bikes", style: "default" },
 ];

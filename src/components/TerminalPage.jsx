@@ -171,7 +171,8 @@ const TerminalPage = ({ title, commandText, content }) => {
                     const newLines = [...prevLines];
                     newLines[state.lineIndex] = {
                         text: '',
-                        style: currentLine.style
+                        style: currentLine.style,
+                        link: currentLine.link
                     };
                     return newLines;
                 });
@@ -204,7 +205,8 @@ const TerminalPage = ({ title, commandText, content }) => {
                 const newLines = [...prevLines];
                 newLines[state.lineIndex] = {
                     text: state.currentLineText,
-                    style: currentLine.style
+                    style: currentLine.style,
+                    link: currentLine.link
                 };
                 return newLines;
             });
@@ -296,7 +298,20 @@ const TerminalPage = ({ title, commandText, content }) => {
                             key={index}
                             className={getStyleClass(line?.style)}
                         >
-                            {line?.text}
+                            {line?.link ? (
+                                <>
+                                    {line.text.match(/^\s*/)[0]}
+                                    <a
+                                        href={line.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {line.text.trimStart()}
+                                    </a>
+                                </>
+                            ) : (
+                                line?.text
+                            )}
                         </div>
                     ))}
                 </div>

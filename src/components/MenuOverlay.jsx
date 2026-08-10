@@ -6,10 +6,9 @@ import './MenuOverlay.css';
 export const MENU_WIDTH = 340;
 
 const MENU_ITEMS = [
-    { label: "PROJECTS", path: "/projects" },
+    { label: "FUN", path: "/fun" },
     { label: "ABOUT", path: "/about" },
-    { label: "CONTACT", path: "/contact" },
-    { label: "FUN", path: "/fun" }
+    { label: "LINKS", path: "/links" }
 ];
 
 const MenuOverlay = ({ onClose }) => {

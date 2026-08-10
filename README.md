@@ -2,7 +2,7 @@
 
 Jack Phallen's personal homepage. It features an animated floating-character
 canvas background that reacts to hover and clicks, plus retro terminal-style
-content pages (Projects, About, Contact).
+content pages (About, Links).
 
 ## Tech stack
 

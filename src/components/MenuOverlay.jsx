@@ -8,7 +8,8 @@ export const MENU_WIDTH = 340;
 const MENU_ITEMS = [
     { label: "PROJECTS", path: "/projects" },
     { label: "ABOUT", path: "/about" },
-    { label: "CONTACT", path: "/contact" }
+    { label: "CONTACT", path: "/contact" },
+    { label: "FUN", path: "/fun" }
 ];
 
 const MenuOverlay = ({ onClose }) => {

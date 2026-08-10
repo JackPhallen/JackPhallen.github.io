@@ -1,0 +1,421 @@
+/* Morris traversal visualizer — terminal palette, SVG scales via viewBox */
+
+.morris {
+    font-family: "Courier New", monospace;
+    color: #33ff33;
+    /* keep the scrollable tree from blowing out the page width (min-width:auto) */
+    contain: inline-size;
+}
+
+.morris__layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.morris__main {
+    flex: 1;
+    min-width: 0; /* allow the scroll wrapper to shrink */
+}
+
+/* horizontal scroll on narrow screens instead of shrinking nodes */
+.morris__tree-scroll {
+    overflow-x: auto;
+    border: 1px solid #1e462f;
+    border-radius: 4px;
+    background-color: #050b07;
+}
+
+.morris__tree-inner {
+    min-width: 600px;
+}
+
+.morris__tree-inner svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+}
+
+/* ---------- edges ---------- */
+
+.morris-edge {
+    stroke: #235c3d;
+    stroke-width: 2;
+    transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.morris-edge--pred {
+    stroke: #66aaff;
+    stroke-width: 3.5;
+}
+
+/* ---------- threads ---------- */
+
+.morris-thread {
+    fill: none;
+    stroke: #ff9f1c;
+    stroke-width: 2.5;
+    stroke-dasharray: 7 5;
+    opacity: 0.9;
+    /* fade in fast so the thread is visible right when the narration mentions it */
+    animation: morris-thread-in 0.15s ease-out;
+}
+
+.morris-thread--active {
+    stroke-width: 4;
+    opacity: 1;
+}
+
+.morris-marker-thread {
+    fill: #ff9f1c;
+}
+
+@keyframes morris-thread-in {
+    from { opacity: 0.25; }
+    to { opacity: 0.9; }
+}
+
+/* ---------- nodes ---------- */
+
+.morris-node {
+    fill: #031007;
+    stroke: #2ea860;
+    stroke-width: 2;
+    transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.morris-node--visited {
+    fill: #1d5c38;
+    stroke: #33ff33;
+}
+
+.morris-node__text {
+    fill: #aaffaa;
+    font-size: 15px;
+    font-weight: bold;
+    text-anchor: middle;
+    pointer-events: none;
+    transition: fill 0.3s ease;
+}
+
+.morris-node--visited + .morris-node__text {
+    fill: #eaffea;
+}
+
+.morris-node__halo {
+    fill: none;
+    stroke: #33ff33;
+    stroke-width: 2;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: morris-pulse 0.9s ease-out infinite;
+}
+
+@keyframes morris-pulse {
+    0% { transform: scale(1); opacity: 0.9; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ---------- pointer rings ---------- */
+/* no position transitions: rapid stepping would separate the ring from its label */
+
+.morris-ring {
+    fill: none;
+    stroke-width: 2.5;
+}
+
+.morris-ring--curr {
+    stroke: #ff9f1c;
+    stroke-dasharray: 6 4;
+}
+
+.morris-ring--pred {
+    stroke: #66aaff;
+    stroke-dasharray: 2 3;
+}
+
+.morris-ring__label {
+    font-size: 11px;
+    font-weight: bold;
+    text-anchor: middle;
+}
+
+.morris-ring__label--curr { fill: #ff9f1c; }
+.morris-ring__label--pred { fill: #66aaff; }
+
+/* ---------- output row (flattened sequence) ---------- */
+
+.morris-output-label {
+    fill: #6fbf8f;
+    font-size: 12px;
+}
+
+.morris-chip {
+    fill: #062a18;
+    stroke: #33ff33;
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: morris-chip-in 0.3s ease-out;
+}
+
+.morris-chip--new {
+    stroke: #ffff99;
+    stroke-width: 2.5;
+}
+
+.morris-chip__text {
+    fill: #eaffea;
+    font-size: 11px;
+    font-weight: bold;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.morris-link {
+    stroke: #33ff33;
+    stroke-width: 1.5;
+}
+
+.morris-marker-link {
+    fill: #33ff33;
+}
+
+.morris-drop {
+    stroke: #33ff33;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 4;
+    opacity: 0.55;
+}
+
+@keyframes morris-chip-in {
+    from { transform: scale(0.4); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- description ---------- */
+
+.morris__desc {
+    min-height: 2.8em;
+    margin: 12px 0;
+    color: #ffff99;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.morris__desc-prefix {
+    color: #33ff33;
+    font-weight: bold;
+}
+
+/* ---------- controls ---------- */
+
+.morris__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.morris__controls-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+}
+
+.morris-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: 1px solid #2ea860;
+    border-radius: 3px;
+    color: #33ff33;
+    font: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.morris-btn:hover:not(:disabled) {
+    background-color: rgba(51, 255, 51, 0.12);
+}
+
+.morris-btn:focus-visible {
+    outline: 2px solid #aaffaa;
+    outline-offset: 1px;
+}
+
+.morris-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.morris-btn--primary {
+    border-color: #33ff33;
+    background-color: rgba(51, 255, 51, 0.1);
+}
+
+.morris-btn--speed {
+    padding: 6px 8px;
+}
+
+.morris-btn--active {
+    background-color: #1d5c38;
+    color: #eaffea;
+}
+
+.morris__step-count {
+    color: #aaffaa;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.morris__speed {
+    display: inline-flex;
+    gap: 4px;
+}
+
+/* ---------- side panels ---------- */
+
+.morris__side {
+    width: 356px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.morris__panel {
+    border: 1px solid #1e462f;
+    border-radius: 4px;
+    background-color: #050b07;
+    padding: 10px 12px;
+}
+
+.morris__panel-title {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #66aaff;
+    font-weight: bold;
+}
+
+.morris-code {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 11px;
+    line-height: 1.5;
+    overflow-x: auto;
+}
+
+.morris-code__line {
+    display: flex;
+    gap: 8px;
+    white-space: pre;
+    color: #8fd0a5;
+    border-left: 3px solid transparent;
+    padding: 1px 4px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.morris-code__line--active {
+    background-color: rgba(51, 255, 51, 0.13);
+    border-left-color: #33ff33;
+    color: #eaffea;
+}
+
+.morris-code__num {
+    color: #2ea860;
+    min-width: 2ch;
+    text-align: right;
+    user-select: none;
+}
+
+.morris-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    line-height: 2;
+    color: #aaffaa;
+}
+
+.morris-legend__swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    vertical-align: -2px;
+    border-radius: 50%;
+}
+
+.morris-legend__swatch--curr {
+    border: 2px dashed #ff9f1c;
+}
+
+.morris-legend__swatch--pred {
+    border: 2px dashed #66aaff;
+}
+
+.morris-legend__swatch--thread {
+    border-radius: 0;
+    height: 0;
+    border-top: 3px dashed #ff9f1c;
+}
+
+.morris-legend__swatch--visited {
+    background-color: #1d5c38;
+    border: 1px solid #33ff33;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 980px) {
+    .morris__layout {
+        flex-direction: column;
+        /* stretch children to container width instead of their scrollable content */
+        align-items: stretch;
+    }
+
+    .morris__side {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    /* stack the groups as full-width rows so buttons wrap instead of overflowing */
+    .morris__controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .morris__controls-group > .morris-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .morris-thread,
+    .morris-chip,
+    .morris-node__halo {
+        animation: none;
+    }
+
+    .morris-ring,
+    .morris-ring__label,
+    .morris-node,
+    .morris-edge,
+    .morris-code__line,
+    .morris-btn {
+        transition: none;
+    }
+}

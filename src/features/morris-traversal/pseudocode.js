@@ -1,0 +1,20 @@
+// Morris in-order pseudocode; trace step codeLine values index into this (1-based).
+export const PSEUDOCODE = [
+    'curr ← root',
+    'while curr ≠ null:',
+    '    if curr.left = null:',
+    '        visit(curr)',
+    '        curr ← curr.right',
+    '    else:',
+    '        pred ← curr.left',
+    '        while pred.right ≠ null',
+    '          and pred.right ≠ curr:',
+    '            pred ← pred.right',
+    '        if pred.right = null:  // FIRST',
+    '            pred.right ← curr  // thread it',
+    '            curr ← curr.left',
+    '        else:                  // SECOND',
+    '            pred.right ← null  // unlink',
+    '            visit(curr)',
+    '            curr ← curr.right',
+];

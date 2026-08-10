@@ -7,7 +7,6 @@ export const MENU_WIDTH = 340;
 
 const MENU_ITEMS = [
     { label: "PROJECTS", path: "/projects" },
-    { label: "RESUME", path: "/resume" },
     { label: "ABOUT", path: "/about" },
     { label: "CONTACT", path: "/contact" }
 ];

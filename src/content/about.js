@@ -1,20 +1,15 @@
 export const ABOUT_CONTENT = [
     { text: "NAME: Jack Phallen", style: "bold" },
-    { text: "TITLE: Software Engineer", style: "default" },
+    { text: "TITLE: Senior Software Engineer", style: "default" },
     { text: "", style: "default" }, // Empty line
-    { text: "ABOUT:", style: "bold" },
-    { text: "I'm a software engineer with a passion for creating elegant solutions to complex problems.", style: "default" },
-    { text: "My background includes experience in web development, system architecture, and data analysis.", style: "default" },
+    { text: "EXPERIENCE:", style: "bold" },
+    { text: "  Asset Management - New York, New York", style: "bold" },
+    { text: "    • Senior Software Engineer (2025 - Present)", style: "default" },
     { text: "", style: "default" }, // Empty line
-    { text: "SKILLS:", style: "bold" },
-    { text: "  • JavaScript/React", style: "default" },
-    { text: "  • Python", style: "default" },
-    { text: "  • Node.js", style: "default" },
-    { text: "  • Data Visualization", style: "default" },
-    { text: "  • System Architecture", style: "default" },
+    { text: "  Arcadia - New York, New York", style: "bold" },
+    { text: "    • Lead Software Engineer (2024 - 2025)", style: "default" },
     { text: "", style: "default" }, // Empty line
-    { text: "CONTACT:", style: "bold" },
-    { text: "  • Email: example@example.com", style: "default" },
-    { text: "  • GitHub: github.com/jackphallen", style: "default" },
-    { text: "  • LinkedIn: linkedin.com/in/jackphallen", style: "default" },
+    { text: "  Epic - Verona, Wisconsin", style: "bold" },
+    { text: "    • Software Engineer Manager (2022 - 2024)", style: "default" },
+    { text: "    • Software Engineer (2021 - 2022)", style: "default" },
 ];

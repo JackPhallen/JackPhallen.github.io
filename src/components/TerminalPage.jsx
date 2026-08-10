@@ -1,25 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import TerminalShell, { TerminalCommandLine } from './TerminalShell';
+import { useTypedCommand } from './useTypedCommand';
 import './TerminalPage.css';
 
 // Typing speed constants
-const COMMAND_FRAME_DELAY = 2;    // Frames to wait between each command character (higher = slower)
 const CONTENT_FRAME_DELAY = 1;    // Frames to wait between words (higher = slower)
 const CONTENT_WORDS_PER_FRAME = 5; // Number of words to display per frame
 const LINE_BREAK_PAUSE_FRAMES = 0; // Pause frames between lines
 
-const MOBILE_THRESHOLD = 600;
-
-const CURSOR = "jackphallen:~ $ "
-
 const TerminalPage = ({ title, commandText, content }) => {
-    const [displayedCommand, setDisplayedCommand] = useState('');
+    const { typedCommand, commandDone } = useTypedCommand(commandText);
     const [displayedLines, setDisplayedLines] = useState([]);
-    const [commandComplete, setCommandComplete] = useState(false);
-    const [currentTime, setCurrentTime] = useState('');
-    const [isMobileView, setIsMobileView] = useState(false);
-    const terminalRef = useRef(null);
-    const navigate = useNavigate();
 
     // Animation state references
     const animationRef = useRef(null);
@@ -31,96 +22,9 @@ const TerminalPage = ({ title, commandText, content }) => {
         processingPause: false
     });
 
-    // Check for mobile view on initial load and window resize
-    useEffect(() => {
-        const checkMobileView = () => {
-            setIsMobileView(window.innerWidth < MOBILE_THRESHOLD);
-        };
-        checkMobileView();
-        window.addEventListener('resize', checkMobileView);
-        return () => {
-            window.removeEventListener('resize', checkMobileView);
-        };
-    }, []);
-
-    // Update UTC time every second
-    useEffect(() => {
-        const updateTime = () => {
-            const now = new Date();
-            const utcTimeString = now.toISOString().slice(0, 19).replace('T', ' ');
-            setCurrentTime(utcTimeString + ' UTC');
-        };
-
-        // Update immediately and then every second
-        updateTime();
-        const timer = setInterval(updateTime, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
-
-    // Handle ESC key to return to home and arrow keys for scrolling
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                navigate('/');
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (terminalRef.current) {
-                    terminalRef.current.scrollTop += 30;
-                }
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (terminalRef.current) {
-                    terminalRef.current.scrollTop -= 30;
-                }
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [navigate]);
-
-    // Type out the command using requestAnimationFrame
-    useEffect(() => {
-        if (!commandText) return;
-
-        // Command animation state
-        const commandStateRef = { index: 0, frameCount: 0 };
-        let commandAnimationRef = null;
-
-        const animateCommandTyping = () => {
-            commandStateRef.frameCount++;
-
-            // Only process every COMMAND_FRAME_DELAY frames
-            if (commandStateRef.frameCount % COMMAND_FRAME_DELAY !== 0) {
-                commandAnimationRef = requestAnimationFrame(animateCommandTyping);
-                return;
-            }
-
-            if (commandStateRef.index <= commandText.length) {
-                setDisplayedCommand(commandText.substring(0, commandStateRef.index));
-                commandStateRef.index++;
-                commandAnimationRef = requestAnimationFrame(animateCommandTyping);
-            } else {
-                setCommandComplete(true);
-            }
-        };
-
-        // Start command animation
-        commandAnimationRef = requestAnimationFrame(animateCommandTyping);
-
-        return () => {
-            if (commandAnimationRef) {
-                cancelAnimationFrame(commandAnimationRef);
-            }
-        };
-    }, [commandText]);
-
     // Display content after command is typed using requestAnimationFrame
     useEffect(() => {
-        if (!commandComplete || !content || content.length === 0) return;
+        if (!commandDone || !content || content.length === 0) return;
 
         // Reset content state
         contentStateRef.current = {
@@ -229,7 +133,7 @@ const TerminalPage = ({ title, commandText, content }) => {
                 cancelAnimationFrame(animationRef.current);
             }
         };
-    }, [commandComplete, content]);
+    }, [commandDone, content]);
 
     // Get CSS class for a style
     const getStyleClass = (style) => {
@@ -244,54 +148,15 @@ const TerminalPage = ({ title, commandText, content }) => {
     };
 
     return (
-        <div className="terminal-container">
-            {/* Status bar at the top */}
-            <div className="terminal-status-bar">
-                <div className="terminal-status-bar__left">
-                    <button
-                        type="button"
-                        className="terminal-back-button"
-                        onClick={() => navigate('/')}
-                        style={{
-                            padding: isMobileView ? '2px 6px' : '2px 8px'
-                        }}
-                        onMouseDown={(e) => e.currentTarget.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.4)'}
-                        onMouseUp={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
-                        onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.3)'}
-                    >
-                        {isMobileView ? '←' : '← Back'}
-                    </button>
+        <TerminalShell
+            title={title}
+            hints={[{ key: '▲/▼', action: 'scroll' }]}
+            statusExtra={<span>Line {displayedLines.length}/~</span>}
+            scrollKeys
+        >
+            <TerminalCommandLine command={typedCommand} done={commandDone} />
 
-                    <div className="terminal-status-bar__info">
-                        {!isMobileView && (
-                            <>
-                                [ <span className="terminal-status-bar__key">ESC</span>:menu ] [ <span className="terminal-status-bar__key">▲/▼</span>:scroll ] |&nbsp;
-                            </>
-                        )}
-                        <span className="terminal-status-bar__title" style={{ marginLeft: isMobileView ? 0 : '4px' }}>{title}</span>&nbsp;|&nbsp;
-                        <span>Line {displayedLines.length}/~</span>
-                    </div>
-                </div>
-
-                {/* UTC Time display - hidden on mobile */}
-                {!isMobileView && (
-                    <div className="terminal-status-bar__time">
-                        {currentTime}
-                    </div>
-                )}
-            </div>
-
-            <div className="terminal-content" ref={terminalRef}>
-                <div className="terminal-command-line">
-                    <span className="terminal-prompt">
-                        {CURSOR}
-                    </span>
-                    <span className="terminal-command">{displayedCommand}</span>
-                    {!commandComplete && (
-                        <span className="terminal-cursor">&nbsp;</span>
-                    )}
-                </div>
-
+            <div className="terminal-content">
                 <div className="terminal-output">
                     {displayedLines.map((line, index) => (
                         <div
@@ -316,7 +181,7 @@ const TerminalPage = ({ title, commandText, content }) => {
                     ))}
                 </div>
             </div>
-        </div>
+        </TerminalShell>
     );
 };
 

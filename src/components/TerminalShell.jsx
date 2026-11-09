@@ -32,17 +32,15 @@ const TerminalShell = ({ title, hints = [], statusExtra = null, scrollKeys = fal
     // Handle ESC key to return to home and arrow keys for scrolling
     useEffect(() => {
         const handleKeyDown = (e) => {
+            if (e.defaultPrevented) return;
             const field = e.target instanceof Element ? e.target.closest('input, textarea') : null;
             if (e.key === 'Escape') {
-                // ESC in a text field only leaves the field — navigating away
-                // would throw out whatever was typed. A second ESC goes home.
                 if (field) {
                     field.blur();
                 } else {
                     navigate('/');
                 }
             } else if (scrollKeys && scrollRef.current && !field) {
-                // (text fields keep their arrow keys for caret movement)
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     scrollRef.current.scrollTop += 30;

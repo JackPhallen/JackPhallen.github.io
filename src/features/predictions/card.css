@@ -1,0 +1,95 @@
+.prediction-card {
+    width: min(100%, 480px);
+    box-sizing: border-box;
+    border: 1px solid #2ea860;
+    border-radius: 4px;
+    background-color: #050b07;
+    padding: 18px 20px;
+}
+
+.prediction-card__header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #1e462f;
+}
+
+.prediction-card__heading {
+    font-weight: bold;
+    color: var(--terminal-title);
+    letter-spacing: 1px;
+}
+
+.prediction-card__time {
+    color: var(--terminal-soft);
+    font-size: 13px;
+}
+
+.prediction-card__title {
+    margin-top: 14px;
+    color: var(--terminal-bright);
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.prediction-card__hash-label {
+    margin-top: 14px;
+    color: var(--terminal-soft);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.prediction-card__hash {
+    margin-top: 4px;
+    padding: 10px 12px;
+    border: 1px dashed #2ea860;
+    border-radius: 3px;
+    background-color: #000;
+    color: var(--terminal-bright);
+    font-size: 17px;
+    letter-spacing: 2px;
+    line-height: 1.5;
+}
+
+.prediction-card__hash-row {
+    display: block;
+}
+
+.prediction-card__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    color: var(--terminal-soft);
+    font-size: 13px;
+}
+
+.prediction-card__status--sealed {
+    color: var(--terminal-green);
+}
+
+.prediction-card__status--revealed {
+    color: var(--terminal-bright);
+    font-weight: bold;
+}
+
+.prediction-card__status--mismatch {
+    color: var(--terminal-key);
+    font-weight: bold;
+}
+
+@media (max-width: 420px) {
+    .prediction-card {
+        padding: 14px;
+    }
+
+    .prediction-card__hash {
+        font-size: 15px;
+        letter-spacing: 1px;
+    }
+}

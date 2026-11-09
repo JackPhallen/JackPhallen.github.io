@@ -1,11 +1,27 @@
+import { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import TerminalShell, { TerminalCommandLine } from '../components/TerminalShell';
 import { useTypedCommand } from '../components/useTypedCommand';
 import Predictions from '../features/predictions/Predictions';
+import { parseLink } from '../features/predictions/link';
 
-const COMMAND = './fun/predictions --commit';
+const CREATE_COMMAND = './fun/predictions --commit';
+const VIEW_COMMAND = './fun/predictions --verify';
+
+const PredictionsContent = ({ commitment }) => {
+    const { typedCommand, commandDone } = useTypedCommand(commitment ? VIEW_COMMAND : CREATE_COMMAND);
+
+    return (
+        <>
+            <TerminalCommandLine command={typedCommand} done={commandDone} />
+            {commandDone && <Predictions commitment={commitment} />}
+        </>
+    );
+};
 
 const PredictionsPage = () => {
-    const { typedCommand, commandDone } = useTypedCommand(COMMAND);
+    const { hash } = useLocation();
+    const commitment = useMemo(() => parseLink(hash), [hash]);
 
     return (
         <TerminalShell
@@ -13,9 +29,7 @@ const PredictionsPage = () => {
             hints={[{ key: '▲/▼', action: 'scroll' }]}
             scrollKeys
         >
-            <TerminalCommandLine command={typedCommand} done={commandDone} />
-
-            {commandDone && <Predictions />}
+            <PredictionsContent key={hash || 'create'} commitment={commitment} />
         </TerminalShell>
     );
 };

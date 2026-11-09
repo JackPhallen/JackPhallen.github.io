@@ -1,5 +1,3 @@
-/* Prediction commitment — terminal palette, panels like the Morris side panels */
-
 .predictions {
     margin-top: 14px;
     max-width: 760px;
@@ -17,29 +15,38 @@
     font-size: 18px;
 }
 
-.predictions__subheading {
-    color: var(--terminal-soft);
+.predictions__steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    list-style: none;
+    margin: 6px 0 12px;
+    padding: 0;
     font-size: 13px;
-    line-height: 1.5;
-    margin-top: 2px;
-    margin-bottom: 16px;
+    color: var(--terminal-soft);
+}
+
+.predictions__step {
+    opacity: 0.6;
+}
+
+.predictions__step--hint {
+    margin-left: auto;
+    font-size: 11px;
+}
+
+.predictions__step--active {
+    color: var(--terminal-bright);
+    font-weight: bold;
+    opacity: 1;
 }
 
 .predictions__panel {
     border: 1px solid #1e462f;
     border-radius: 4px;
     background-color: #050b07;
-    padding: 12px 14px;
+    padding: 4px 14px 12px;
     margin-bottom: 16px;
-}
-
-.predictions__panel-title {
-    margin: 0 0 4px;
-    font-size: 13px;
-    font-weight: bold;
-    color: var(--terminal-title);
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
 .predictions__label {
@@ -47,6 +54,11 @@
     color: var(--terminal-soft);
     font-size: 13px;
     margin: 10px 0 4px;
+}
+
+.predictions__optional {
+    font-size: 11px;
+    opacity: 0.7;
 }
 
 .predictions__input {
@@ -80,28 +92,59 @@
     opacity: 0.7;
 }
 
-.predictions__hash {
+.predictions__meta--below-card {
+    margin: 6px 0 16px;
+}
+
+.predictions__label--step {
+    margin-top: 16px;
+    color: var(--terminal-bright);
+    font-weight: bold;
+}
+
+.predictions__hint {
+    margin-bottom: 6px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--terminal-soft);
+    opacity: 0.8;
+}
+
+.predictions__input--manual {
+    font-size: 12px;
+    resize: none;
+}
+
+.predictions__text {
     border: 1px dashed #2ea860;
     border-radius: 3px;
     background-color: #000;
     padding: 8px 10px;
-    font-size: 13px;
     color: var(--terminal-bright);
-    word-break: break-all;
-    user-select: all;
-    min-height: 1.2em;
+    font-size: 14px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
-.predictions__hash--empty {
-    color: #2ea860;
-    user-select: none;
+.predictions__warning {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--terminal-key);
 }
 
 .predictions__actions {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
     margin-top: 12px;
+}
+
+.predictions__actions--nav {
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid #1e462f;
 }
 
 .predictions-btn {
@@ -115,12 +158,19 @@
     font: inherit;
     font-size: 13px;
     padding: 6px 10px;
+    text-decoration: none;
     cursor: pointer;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.predictions-btn:hover:not(:disabled) {
+.predictions-btn--primary {
+    border-color: var(--terminal-green);
     background-color: rgba(51, 255, 51, 0.12);
+    font-weight: bold;
+}
+
+.predictions-btn:hover:not(:disabled) {
+    background-color: rgba(51, 255, 51, 0.2);
 }
 
 .predictions-btn:focus-visible {
@@ -142,14 +192,65 @@
     font-size: 13px;
 }
 
-.predictions__verdict--match {
+.predictions__verdict--good {
     color: var(--terminal-bright);
     font-weight: bold;
 }
 
-.predictions__verdict--mismatch,
-.predictions__verdict--invalid {
+.predictions__verdict--bad {
     color: var(--terminal-key);
+    font-weight: bold;
+}
+
+.predictions__verdict--note {
+    color: var(--terminal-soft);
+}
+
+.predictions__details {
+    font-size: 13px;
+}
+
+.predictions__summary {
+    cursor: pointer;
+    color: var(--terminal-soft);
+    opacity: 0.8;
+}
+
+.predictions__summary:focus-visible {
+    outline: 2px solid var(--terminal-soft);
+    outline-offset: 2px;
+}
+
+.predictions__details[open] {
+    border: 1px solid #1e462f;
+    border-radius: 4px;
+    background-color: #050b07;
+    padding: 10px 14px 4px;
+}
+
+.predictions__own {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--terminal-soft);
+}
+
+.predictions__own:hover {
+    color: var(--terminal-bright);
+}
+
+.predictions__own:focus-visible {
+    outline: 2px solid var(--terminal-soft);
+    outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+    .predictions__input,
+    .predictions__input--manual {
+        font-size: 16px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

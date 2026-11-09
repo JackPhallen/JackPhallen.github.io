@@ -11,4 +11,6 @@ export const ABOUT_CONTENT = [
     },
     { text: "  • Twin Peaks", style: "default" },
     { text: "  • Bikes", style: "default" },
+    { text: "  • Cats", style: "default" },
+    { text: "  • Prefab Sprout (band)", style: "default" },
 ];

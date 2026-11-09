@@ -5,7 +5,6 @@ import './MenuOverlay.css';
 
 export const MENU_WIDTH = 340;
 
-// An item either navigates to a path or opens a submenu in place (items)
 const MENU_ITEMS = [
     {
         label: "FUN",
@@ -20,13 +19,11 @@ const MENU_ITEMS = [
 
 const ROOT_MENU = { title: 'MAIN MENU', items: MENU_ITEMS };
 
-// Appended to every submenu so touch users (no ESC key) can get back
 const BACK_ITEM = { label: "BACK", back: true };
 
 const MenuOverlay = ({ onClose }) => {
     const navigate = useNavigate();
 
-    // Current menu level — submenus swap in place, no page load
     const [menu, setMenu] = useState(ROOT_MENU);
     const isRoot = menu === ROOT_MENU;
 
@@ -34,7 +31,6 @@ const MenuOverlay = ({ onClose }) => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [selectedIndex, setSelectedIndex] = useState(null);
 
-    // Switch menu level and clear selection in the same batch
     const openMenu = useCallback((next) => {
         setMenu(next);
         setSelectedIndex(null);
@@ -74,14 +70,12 @@ const MenuOverlay = ({ onClose }) => {
                     });
                     break;
                 case 'Enter':
-                    // Open submenu or navigate to selected
                     if (selectedIndex !== null) {
                         e.preventDefault();
                         activateItem(menu.items[selectedIndex]);
                     }
                     break;
                 case 'Escape':
-                    // Back to the root menu, or close from the root
                     if (isRoot) {
                         onClose();
                     } else {

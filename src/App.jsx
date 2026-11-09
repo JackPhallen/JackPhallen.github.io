@@ -13,7 +13,6 @@ const App = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/links" element={<LinksPage />} />
-                {/* /fun used to be the Morris page — keep old links working */}
                 <Route path="/fun" element={<Navigate to="/fun/morris" replace />} />
                 <Route path="/fun/morris" element={<MorrisPage />} />
                 <Route path="/fun/predictions" element={<PredictionsPage />} />

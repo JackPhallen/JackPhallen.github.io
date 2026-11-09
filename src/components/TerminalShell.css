@@ -1,4 +1,4 @@
-/* keep block-level and full-width — the Morris layout on /fun relies on it */
+/* keep block-level and full-width — the Morris layout on /fun/morris relies on it */
 /* body never scrolls (see index.html), so this page scrolls itself */
 .terminal-shell {
     background-color: #000000;

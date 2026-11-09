@@ -5,7 +5,7 @@ import './TerminalShell.css';
 
 const MOBILE_THRESHOLD = 600;
 
-// scrollKeys opts into ▲/▼ scrolling — never on /fun, the Morris player owns arrows there
+// scrollKeys opts into ▲/▼ scrolling — never on /fun/morris, the Morris player owns arrows there
 const TerminalShell = ({ title, hints = [], statusExtra = null, scrollKeys = false, children }) => {
     const navigate = useNavigate();
     const [currentTime, setCurrentTime] = useState('');
@@ -32,9 +32,17 @@ const TerminalShell = ({ title, hints = [], statusExtra = null, scrollKeys = fal
     // Handle ESC key to return to home and arrow keys for scrolling
     useEffect(() => {
         const handleKeyDown = (e) => {
+            const field = e.target instanceof Element ? e.target.closest('input, textarea') : null;
             if (e.key === 'Escape') {
-                navigate('/');
-            } else if (scrollKeys && scrollRef.current) {
+                // ESC in a text field only leaves the field — navigating away
+                // would throw out whatever was typed. A second ESC goes home.
+                if (field) {
+                    field.blur();
+                } else {
+                    navigate('/');
+                }
+            } else if (scrollKeys && scrollRef.current && !field) {
+                // (text fields keep their arrow keys for caret movement)
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     scrollRef.current.scrollTop += 30;

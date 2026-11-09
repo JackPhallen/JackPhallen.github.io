@@ -1,24 +1,24 @@
-/* Fun page — content styles only. Shell chrome (scroll container, status bar,
+/* Morris page — content styles only. Shell chrome (scroll container, status bar,
    command line, cursor) lives in TerminalShell/TerminalStatusBar. */
 
 /* content reveal after the command finishes typing */
-.fun-content {
+.morris-page {
     margin-top: 14px;
-    animation: fun-fade-in 0.4s ease-out;
+    animation: morris-page-fade-in 0.4s ease-out;
 }
 
-@keyframes fun-fade-in {
+@keyframes morris-page-fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
-.fun-heading {
+.morris-page__heading {
     font-weight: bold;
     color: var(--terminal-bright);
     font-size: 18px;
 }
 
-.fun-subheading {
+.morris-page__subheading {
     color: var(--terminal-soft);
     font-size: 13px;
     margin-top: 2px;
@@ -26,7 +26,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fun-content {
+    .morris-page {
         animation: none;
     }
 }

@@ -14,28 +14,51 @@ export const isHash = (value) => HEX64.test(value);
 
 export const formatUtc = (date) => date.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
 
-export const buildLink = ({ hash, title, createdAt, text }) => {
-    const params = new URLSearchParams();
-    params.set('h', hash);
-    if (title) params.set('t', title);
-    params.set('c', createdAt.toISOString().slice(0, 16) + 'Z');
-    if (text !== undefined) params.set('p', text);
-    return `${window.location.origin}${PATH}#${params}`;
+const toBase64Url = (text) => {
+    let binary = '';
+    new TextEncoder().encode(text).forEach((byte) => {
+        binary += String.fromCharCode(byte);
+    });
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
 
-export const parseLink = (fragment) => {
-    const raw = fragment.replace(/^#/, '');
-    if (!raw) return null;
-    const params = new URLSearchParams(raw);
-    const hash = normalizeHash(params.get('h') ?? '');
-    const c = params.get('c') ?? '';
+const fromBase64Url = (value) => {
+    const binary = atob(value.replace(/-/g, '+').replace(/_/g, '/'));
+    const bytes = Uint8Array.from(binary, (ch) => ch.charCodeAt(0));
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+};
+
+export const buildLink = ({ hash, title, createdAt, text }) => {
+    const fields = { h: hash, c: createdAt.toISOString().slice(0, 16) + 'Z' };
+    if (title) fields.t = title;
+    if (text !== undefined) fields.p = text;
+    return `${window.location.origin}${PATH}?d=${toBase64Url(JSON.stringify(fields))}`;
+};
+
+const readFields = (raw) => {
+    try {
+        const fields = JSON.parse(fromBase64Url(raw));
+        return fields && typeof fields === 'object' ? fields : {};
+    } catch {
+        return {};
+    }
+};
+
+const asString = (value) => (typeof value === 'string' ? value : null);
+
+export const parseLink = (search) => {
+    const raw = new URLSearchParams(search).get('d');
+    if (raw === null) return null;
+    const fields = readFields(raw);
+    const hash = normalizeHash(asString(fields.h) ?? '');
+    const c = asString(fields.c) ?? '';
     const created = CREATED_FORMAT.test(c) ? new Date(c) : null;
     return {
         valid: isHash(hash),
         hash,
-        title: (params.get('t') ?? '').trim().slice(0, MAX_TITLE),
+        title: (asString(fields.t) ?? '').trim().slice(0, MAX_TITLE),
         createdAt: created && !Number.isNaN(created.getTime()) ? created : null,
-        text: params.get('p'),
+        text: asString(fields.p),
     };
 };
 
@@ -53,7 +76,7 @@ export const classifyPaste = (value) => {
 
     const url = toUrl(trimmed);
     if (url && url.pathname.replace(/\/$/, '').endsWith(PATH)) {
-        const link = parseLink(url.hash);
+        const link = parseLink(url.search);
         if (link?.text != null) {
             if (!link.valid || hashPrediction(link.text) !== link.hash) return { kind: 'broken' };
             return { kind: 'reveal', text: link.text, hash: link.hash };

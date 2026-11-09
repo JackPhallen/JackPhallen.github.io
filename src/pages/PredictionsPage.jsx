@@ -20,8 +20,8 @@ const PredictionsContent = ({ commitment }) => {
 };
 
 const PredictionsPage = () => {
-    const { hash } = useLocation();
-    const commitment = useMemo(() => parseLink(hash), [hash]);
+    const { search } = useLocation();
+    const commitment = useMemo(() => parseLink(search), [search]);
 
     return (
         <TerminalShell
@@ -29,7 +29,7 @@ const PredictionsPage = () => {
             hints={[{ key: '▲/▼', action: 'scroll' }]}
             scrollKeys
         >
-            <PredictionsContent key={hash || 'create'} commitment={commitment} />
+            <PredictionsContent key={search || 'create'} commitment={commitment} />
         </TerminalShell>
     );
 };
